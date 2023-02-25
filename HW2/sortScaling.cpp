@@ -8,8 +8,8 @@
 #include "sorting.h"
 using namespace std;
 #define StandIO 0
-#define TableIO 1
-#define AverageIO 1
+#define TableIO 0
+#define AverageIO 0
 
 // Debugging routine: (Good Software would put this in seperate test.h)
 void printArray(int a[], int N)
