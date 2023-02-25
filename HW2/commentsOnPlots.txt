@@ -1,0 +1,1 @@
+The fits for all 4  sorting algorithms fit well with the numerical data. 
