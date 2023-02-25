@@ -22,13 +22,23 @@ int main()
 { 
   int N; // size of array
   int n_power  = 12;  // power of 2 for size. 
-  int Ntrials = 8;  // run over a set of re_ordering lists
+  int Ntrials = 10;  // run over a set of re_ordering lists
   double InvTrials; // inverse real number
   int *a, *a_save, *a_tmp;
   ofstream myData;
   double MeanInsert, MeanMerge, MeanQuick, MeanShell;
   double rmsInsert, rmsMerge, rmsQuick, rmsShell;
   int CountInsert, CountMerge, CountQuick, CountShell;
+
+  int * swapsinsert;
+  int * swapsmerge;
+  int * swapsquick;
+  int * swapsshell;
+
+  swapsinsert = (int*) malloc(sizeof(int) * Ntrials);
+  swapsmerge  = (int*) malloc(sizeof(int) * Ntrials);
+  swapsquick  = (int*) malloc(sizeof(int) * Ntrials);
+  swapsshell  = (int*) malloc(sizeof(int) * Ntrials);
   
   // Here is how  you allocate a file and write to it in C++.
   
@@ -85,9 +95,10 @@ int main()
 	  swapCount = 0;
 	  insertionsort(a, N); 
           CountInsert = swapCount;
+          swapsinsert[ntry] = CountInsert;
 	  
 #if StandIO
-	  cout << "Case = " << j << "  insertionSort swapCount " << swapCount << endl;
+	  cout << "Case = " << ntry << "  insertionSort swapCount " << swapCount << endl;
 #endif
 	  
 	  //Test mergeSort
@@ -95,9 +106,10 @@ int main()
 	  for(int i = 0;i<N;i++) a[i] = a_save[i];
 	  mergeSort(a,  a_tmp, 0, N-1);
           CountMerge = swapCount;	  
+          swapsmerge[ntry] = CountMerge;
 
 #if StandIO
-	  cout << "Case = " << j << " Merge  swapCount " << swapCount << endl;
+	  cout << "Case = " << ntry << " Merge  swapCount " << swapCount << endl;
 #endif
 	  
 	  //Test quickSort
@@ -105,9 +117,10 @@ int main()
 	  for(int i = 0;i<N;i++) a[i] = a_save[i];
 	  quicksort(a, 0,N-1);
           CountQuick = swapCount;
+          swapsquick[ntry] = CountQuick;
 	  
 #if StandIO
-	  cout << "Case = " << j << " Quick  swapCount " << swapCount << endl;
+	  cout << "Case = " << ntry  << " Quick  swapCount " << swapCount << endl;
 #endif
 	  
 	  //Test shellSort
@@ -115,9 +128,10 @@ int main()
 	  for(int i = 0;i<N;i++) a[i] = a_save[i];
 	  shellsort(a,N);
 	  CountShell = swapCount;
+          swapsshell[ntry] = swapCount;
 	  
 #if StandIO
-	  cout << "Case = " << j << " Shell Sort  swapCount " << swapCount << endl;
+	  cout << "Case = " << ntry << " Shell Sort  swapCount " << swapCount << endl;
 #endif	  
 	  
 	  //	  Get new permutation of random array.
@@ -132,21 +146,36 @@ int main()
 	  
 #endif
 
+	      MeanInsert += ((double) CountInsert) * InvTrials;
+	      MeanMerge  += ((double) CountMerge ) * InvTrials;
+	      MeanQuick  += ((double) CountQuick ) * InvTrials;
+	      MeanShell  += ((double) CountShell ) * InvTrials;
 	  
 	} // end cases
 
+
+
 #if  TableIO && AverageIO
-      MeanInsert += ((double) CountInsert) * InvTrials;
-      MeanMerge  += ((double) CountMerge ) * InvTrials;
-      MeanQuick  += ((double) CountQuick ) * InvTrials;
-      MeanShell  += ((double) CountShell ) * InvTrials;
       cout << N  <<"      " <<  CountInsert   <<"      " <<  CountMerge  <<"      "<< CountQuick  <<"      "<<    CountShell  << endl;
 #endif
-      
+      for(int i = 0; i < Ntrials; i++) {
+        rmsInsert += pow(swapsinsert[i] - MeanInsert, 2) * InvTrials;
+        rmsMerge +=  pow(swapsmerge[i] -  MeanMerge , 2) * InvTrials;
+        rmsQuick +=  pow(swapsquick[i] -  MeanQuick , 2) * InvTrials;
+        rmsShell +=  pow(swapsshell[i] -  MeanShell , 2) * InvTrials;
+
+      }
+
+/*
       rmsInsert  = sqrt(rmsInsert -  MeanInsert* MeanInsert);
       rmsMerge  = sqrt(rmsMerge -  MeanMerge* MeanMerge);
       rmsQuick  = sqrt(rmsQuick -  MeanQuick* MeanQuick);
       rmsShell  = sqrt(rmsShell -  MeanShell* MeanShell);
+*/
+      rmsInsert  = sqrt(rmsInsert);
+      rmsMerge  = sqrt(rmsMerge);
+      rmsQuick  = sqrt(rmsQuick);
+      rmsShell  = sqrt(rmsShell);
       
       
       fprintf(cFile,"%20.15d  %15.5e  %15.5e  %15.5e  %15.5e  %15.5e  %15.5e  %15.5e  %15.5e \n", N, MeanInsert,  rmsInsert, MeanMerge,  rmsMerge,  MeanQuick, rmsQuick,  MeanShell,  rmsShell );
@@ -159,6 +188,11 @@ int main()
       
     } // end array sizes N
   
+  free(swapsinsert);
+  free(swapsmerge);
+  free(swapsquick);
+  free(swapsshell);
+
   fclose(cFile);
   
   return 0;
